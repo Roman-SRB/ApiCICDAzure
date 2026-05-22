@@ -1,0 +1,6 @@
+@ApiCICDAzure_HostAddress = http://localhost:5206
+
+GET {{ApiCICDAzure_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
