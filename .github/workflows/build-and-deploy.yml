@@ -8,11 +8,11 @@ on:
 
 env:
   AZURE_WEBAPP_NAME: hosttestwebapi
-  AZURE_WEBAPP_PACKAGE_PATH: "./ApiCICDAzure/publish"
-  DOTNET_VERSION: "9.X"
+  #AZURE_WEBAPP_PACKAGE_PATH: "./ApiCICDAzure/publish"
+  DOTNET_VERSION: "9.0.X"
   SOLUTION_PATH: "ApiCICDAzure/ApiCICDAzure.slnx"
   API_PROJECT_PATH: "ApiCICDAzure/ApiCICDAzure.csproj"
-  PUBLISH_DIR: "./publish"
+  PUBLISH_DIR: ".publish"
 
 jobs:
   build-and-test:
@@ -34,10 +34,29 @@ jobs:
         run: dotnet build ${{ env.SOLUTION_PATH }} --configuration Release --no-restore
 
       - name: Publish
-        run: dotnet publish ${{ env.API_PROJECT_PATH }} --configuration Release --no-restore --no-build --property:PublishDir=${{ env.PUBLISH_DIR }}
+        run: dotnet publish ${{ env.API_PROJECT_PATH }} --configuration Release --no-restore --output ${{ env.PUBLISH_DIR }}
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
           name: published-app
           path: ${{ env.PUBLISH_DIR }}
+
+  deploy:
+    name: Deploy to Azure
+    runs-on: ubuntu-latest
+    needs: [build-and-test]
+
+    steps:
+      - name: Download artifact from build job
+        uses: actions/download-artifact@v4
+        with:
+          name: published-app
+          path: ${{ env.PUBLISH_DIR }}
+
+      - name: Deploy
+        uses: azure/webapps-deploy@v3
+        with:
+          app-name: ${{ env.AZURE_WEBAPP_NAME }}
+          publish-profile: ${{ secrets.AZURE_HOSTTESTWEBAPI_PUBLISH_PROFILE }}
+          package: "${{ env.PUBLISH_DIR }}"
