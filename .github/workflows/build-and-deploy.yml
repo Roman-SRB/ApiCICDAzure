@@ -12,7 +12,7 @@ env:
   DOTNET_VERSION: "9.0.X"
   SOLUTION_PATH: "ApiCICDAzure/ApiCICDAzure.slnx"
   API_PROJECT_PATH: "ApiCICDAzure/ApiCICDAzure.csproj"
-  PUBLISH_DIR: ".publish"
+  PUBLISH_DIR: "./publish"
 
 jobs:
   build-and-test:
